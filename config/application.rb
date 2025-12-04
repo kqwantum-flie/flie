@@ -1,4 +1,4 @@
-require_relative "boot"
+require_relative :boot.to_s
 
 require "rails/all"
 
@@ -25,3 +25,5 @@ module Aroflie
     # config.eager_load_paths << Rails.root.join("extras")
   end
 end
+
+Aroflie::Start.start
