@@ -2,7 +2,7 @@ source "https://rubygems.org"
 
 # ruby ffi
 gem "ffi", "~> 1.17.2"
-# aro cli gem
+# aro
 gem "aro", "~> 0.2.2"
 # localization support for rails
 gem "rails-i18n", "~> 8.1.0"
@@ -73,4 +73,10 @@ group :test do
   # Use system testing [https://guides.rubyonrails.org/testing.html#system-testing]
   gem "capybara"
   gem "selenium-webdriver"
+end
+
+# todo: remove development
+group :production, :development do
+  gem 'aws-sdk-rails', '~> 5'
+  gem 'aws-actionmailer-ses', '~> 1'
 end

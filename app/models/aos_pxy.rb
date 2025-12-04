@@ -73,7 +73,7 @@ class AosPxy < ApplicationRecord
     end
 
     # run it
-    return `#{:aos} #{cmd} #{Aos::Os::YOU_FLAG} #{user.aroflie_you}`
+    Flie::Os.system(cmd, user)
   end
 
   private

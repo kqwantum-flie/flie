@@ -33,8 +33,12 @@ module Flie
     # ).to_s]
     config.i18n.default_locale = :en
     config.i18n.available_locales = [:en]
+
+    config.action_mailer.delivery_method = :ses_v2
+    config.action_mailer.ses_v2_settings = { region: 'us-east-2' }
   end
 end
 
-# puts I18n.load_path
+require_relative :start.to_s
+# my setup process during boot
 Flie::Os.start
