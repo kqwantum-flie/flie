@@ -35,5 +35,7 @@ module Flie
     config.i18n.available_locales = [:en]
   end
 end
+
 # puts I18n.load_path
 Flie::Os.start
+
