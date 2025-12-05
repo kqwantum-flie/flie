@@ -23,7 +23,16 @@ module Aroflie
     #
     # config.time_zone = "Central Time (US & Canada)"
     # config.eager_load_paths << Rails.root.join("extras")
+
+    config.i18n.load_path += Dir[Rails.root.join('config', 'locales', '*.{rb,yml}').to_s]
+    # config.i18n.load_path += Dir[Rails.root.join(
+    #   :config.to_s,
+    #   :locales.to_s,
+    #   :"*.yml".to_s
+    # ).to_s]
+    config.i18n.default_locale = :en
+    config.i18n.available_locales = [:en]
   end
 end
-
+puts I18n.load_path
 Aroflie::Start.start
