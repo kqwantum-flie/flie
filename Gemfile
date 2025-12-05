@@ -1,7 +1,9 @@
 source "https://rubygems.org"
 
-gem "aro"
-
+# aro cli gem
+gem "aro", "~> 0.1.6"
+# localization support for rails
+gem "rails-i18n", "~> 8.1.0"
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
 gem "rails", "~> 8.1.1"
 # The modern asset pipeline for Rails [https://github.com/rails/propshaft]
