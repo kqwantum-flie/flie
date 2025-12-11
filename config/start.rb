@@ -1,24 +1,19 @@
 require :fileutils.to_s
-# require :aro.to_s
+require :aro.to_s
 
-# ensures the aroflie arows directory exists and is configured properly
 module Aroflie
-  class Start
-    AROFLIE_PATH = :arows.to_s
+  module Aos
+    ARODOME_PATH = :arodome.to_s
     
     def self.start
-      relative_path = "#{File.basename(Dir.getwd)}/#{File.basename(__FILE__)}"
-      puts "beginning #{Aroflie.name} startup process in #{relative_path}..."
-      puts "running #{File.basename(__FILE__)} -> #{self.name}.#{__method__}..."
-      unless Dir.exist?(AROFLIE_PATH)
-        puts "attempting to create the #{AROFLIE_PATH} directory..."
-        FileUtils.mkdir(AROFLIE_PATH, verbose: true)
+      unless Dir.exist?(ARODOME_PATH)
+        system("aro dom new arodome")
+        Dir.chdir(ARODOME_PATH) do
+          system("aro dom init")
+          system("aos config set format json")
+          system("aos config set dimension ruby_facot") unless File.exist?("/dev/tarot")
+        end
       end
-
-      # todo: any additional configurations
-      # ...
-
-      puts "#{Aroflie.name} startup complete!"
     end
   end
 end

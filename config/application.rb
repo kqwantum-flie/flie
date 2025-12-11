@@ -34,5 +34,5 @@ module Aroflie
     config.i18n.available_locales = [:en]
   end
 end
-puts I18n.load_path
-Aroflie::Start.start
+# puts I18n.load_path
+Aroflie::Aos.start

@@ -12,6 +12,11 @@
   <% end %>
 
   <div>
+    <%= form.email_field :email_address, required: true, autofocus: true, autocomplete: "username", placeholder: "Enter your email address", value: params[:email_address] %><br>
+    <%= form.password_field :password, required: true, autocomplete: "current-password", placeholder: "Enter your password", maxlength: 72 %><br>
+  </div>
+
+  <div>
     <%= form.submit %>
   </div>
 <% end %>
