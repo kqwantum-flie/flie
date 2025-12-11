@@ -1,7 +1,7 @@
 require :fileutils.to_s
 require :aro.to_s
 
-module Aroflie
+module Flie
   module Aos
     ARODOME_PATH = :arodome.to_s
     

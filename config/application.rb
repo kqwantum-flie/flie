@@ -6,7 +6,7 @@ require "rails/all"
 # you've limited to :test, :development, or :production.
 Bundler.require(*Rails.groups)
 
-module Aroflie
+module Flie
   class Application < Rails::Application
     # Initialize configuration defaults for originally generated Rails version.
     config.load_defaults 8.1
@@ -35,4 +35,4 @@ module Aroflie
   end
 end
 # puts I18n.load_path
-Aroflie::Aos.start
+Flie::Aos.start
