@@ -1,4 +1,7 @@
 Rails.application.routes.draw do
+  resources :flie_os, only: [:show] do
+    resources :os_logs, only: [:create]
+  end
   resources :users
   resource :session
   resources :passwords, param: :token
@@ -13,5 +16,5 @@ Rails.application.routes.draw do
   # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
 
   # Defines the root path route ("/")
-  root "users#new"
+  root "flie_os#new#out_current"
 end

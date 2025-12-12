@@ -1,0 +1,35 @@
+<script>
+  <%# todo: move this somewhere better %>
+  document.onreadystatechange = function() {
+    <%# if (document.readyState == "complete") { %>
+      document.getElementById("out_current").scrollIntoView();
+    <%# } %>
+  };
+</script>
+
+<% ps1 = ">" + "[Aro::#{@flie_o.class.name}]>:" %>
+
+<div id="tty" class="bg-black text-green overflow-x-hidden">
+  <div id="frame" class="flex flex-col w-screen h-screen text-2xl font-semibold font-mono selection:bg-green selection:text-black">
+    <div id="output" class="flex flex-col grow overflow-y-auto">
+      <% @flie_o.os_logs.each_with_index do |os_log, idx| %>
+      <% anchor = idx == @flie_o.os_logs.count - 1 ? :current.to_s : os_log.id %>
+        <div id="<%= "in_#{anchor}" %>">
+          <%= "#{ps1}#{os_log.in}" %>
+        </div>
+        <div id="<%= "out_#{anchor}" %>">
+          <%= "#{ps1}#{os_log.out}" %>
+        </div>
+      <% end %>
+    </div>
+    <div id="input" class="flex grow-none flex-row">
+      <div class="ps1">
+        <%= "#{ps1}$" %>
+      </div>
+
+      <%= form_with url: flie_o_os_logs_path(@flie_o.id), html: {class: "flex grow ml-[1rem]"} do |form| %>
+        <input id="os_log_in" name="os_log[in]" class="grow focus:outline-none" autocomplete="off" autofocus></input>
+      <% end %>
+    </div>
+  </div>
+</div>
