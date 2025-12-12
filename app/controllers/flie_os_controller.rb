@@ -13,14 +13,24 @@ class FlieOsController < ApplicationController
   private
 
   def set_you
+    @flie_o = FlieO.find_by(id: params[:id])
     # get an unassigned you
     # this allows for interaction without a user (aka logged out)
-    @you = You.find_by(user: nil)
-    if @you.nil?
-      @flie_o = FlieO.create
-      @you = @flie_o.you
-    else
-      @flie_o = @you.flie_o
+    resume_session
+    user = Current.user
+    if user.present? && @flie_o&.you&.user != user
+      redirect_to user.you.flie_o
+    elsif user.nil? && @flie_o&.you&.user.present?
+      redirect_to :root
+    elsif @flie_o.nil?
+      you = You.find_by(user: user || nil)
+      if you.nil?
+        @flie_o = FlieO.create
+        you = @flie_o.you
+      end
+      @flie_o = you.flie_o
     end
+
+    @current_user = user
   end
 end
