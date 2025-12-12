@@ -91,11 +91,14 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_12_195157) do
     t.index ["user_id"], name: "index_yous_on_user_id"
   end
 
+<<<<<<< HEAD
   add_foreign_key "os_cmd_gets", "os_cmds"
   add_foreign_key "os_cmd_gets", "os_gets"
   add_foreign_key "os_dos", "flie_os"
   add_foreign_key "os_dos", "os_cmds"
   add_foreign_key "os_dos", "os_gets"
+=======
+>>>>>>> 775cc84 (add flie_os)
   add_foreign_key "os_logs", "flie_os"
   add_foreign_key "sessions", "users"
   add_foreign_key "yous", "flie_os"
