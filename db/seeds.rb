@@ -1,61 +1,30 @@
-module Flie::Os
-  CMDS = {
-    IN: {
-      name: :in,
-      access: OsCmd.accesses[:pub],
-      gets: [
-        :email,
-        :password
-      ]
-    },
-    UP: {
-      name: :up,
-      access: OsCmd.accesses[:pub],
-      gets: [
-        :email,
-        :password,
-        :password_confirm
-      ]
-    },
-  }
 
-  GETS = {
-    PASSWORD: {
-      name: :password,
-      input_type: :password
-    },
-    PASSWORD_CONFIRMATION: {
-      name: :password_confirm,
-      input_type: :password
-    },
-    EMAIL: {
-      name: :email,
-      input_type: :email
-    },
-    TEXT: {
-      name: :text,
-      input_type: :text
-    },
-  }
-end
-
-# create gets
-Flie::Os::GETS.each do |k, get|
-  OsGet.create(
+def load_get(k)
+  return unless Flie::Os::GETS.keys.include?(k.to_sym)
+  get = Flie::Os::GETS[k.to_sym]
+  OsGet.find_or_create_by(
     name: get[:name],
     prompt: I18n.t("os_gets.prompts.#{get[:name]}"),
     input_type: get[:input_type]
   )
 end
 
-# create commands
-Flie::Os::CMDS.each do |k, cmd|
-  os_cmd = OsCmd.create(name: cmd[:name], access: cmd[:access])
+def load_cmd(k)
+  return unless Flie::Os::CMDS.keys.include?(k.to_sym)
+  cmd = Flie::Os::CMDS[k.to_sym]
+  os_cmd = OsCmd.find_or_create_by(name: cmd[:name], access: cmd[:access])
   cmd[:gets].each_with_index{|get, i|
-    OsCmdGet.create(
+    OsCmdGet.find_or_create_by(
       os_cmd: os_cmd,
       os_get: OsGet.find_by(name: get),
       step: i
     )
   }
 end
+
+# create gets
+Flie::Os::GETS.keys.each{|k| load_get(k) }
+
+# create commands
+Flie::Os::CMDS.keys.each{|k| load_cmd(k) }
+

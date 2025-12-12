@@ -1,29 +1,61 @@
 en:
   os_gets:
     prompts:
+      new_password: "enter new password"
       password: "enter password"
       password_confirm: "confirm password"
       email: "enter email"
-      text: "enter text"
+      confirm: "continue? (y)"
   flie_os:
+    messages:
+      doing_nothing: "doing nothing."
+      invalid_command: "invalid command."
+      invalid_account: "invalid account."
+      password_changed: "password changed."
+      password_error: "password error."
+      password_no_previous: "cannot use previous password."
+      passwords_not_equal: "passwords not equal."
+      sign_in_success: "%{name} signed in %{timestamp}."
+      sign_out_success: "%{name} signed out at %{timestamp}."
     usage:
-      no_user: |
+      user: |
         USAGE
 
           flie - flie on aos with aro.
 
         SYNOPSIS
 
-          flie [-v | --version] [-h | --help] <command1> <command2>
+          flie [-v | --version] [-h | --help] <command>
 
         COMMANDS
+          passwd
+            change password.
+
+              $ flie passwd
+
+          out
+            sign out.
+
+              $ file out
+
+            note: equal to typing 'exit'.
+
+      guest: |
+        USAGE
+
+          flie - flie on aos with aro.
+
+        SYNOPSIS
+
+          flie [-v | --version] [-h | --help] <command>
+
+        COMMANDS
+
           in
-            sign in:
+            sign in.
 
               $ flie in
           up
-            sign up:
+            sign up.
 
               $ flie up
-
-

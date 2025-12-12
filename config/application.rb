@@ -8,6 +8,7 @@ Bundler.require(*Rails.groups)
 
 module Flie
   class Application < Rails::Application
+    VERSION = "0.0.1"
     # Initialize configuration defaults for originally generated Rails version.
     config.load_defaults 8.1
 
