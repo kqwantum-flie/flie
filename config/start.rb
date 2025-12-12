@@ -2,7 +2,7 @@ require :fileutils.to_s
 require :aro.to_s
 
 module Flie
-  module Aos
+  module Os
     ARODOME_PATH = :arodome.to_s
     
     def self.start

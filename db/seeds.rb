@@ -1,9 +1,61 @@
-# This file should ensure the existence of records required to run the application in every environment (production,
-# development, test). The code here should be idempotent so that it can be executed at any point in every environment.
-# The data can then be loaded with the bin/rails db:seed command (or created alongside the database with db:setup).
-#
-# Example:
-#
-#   ["Action", "Comedy", "Drama", "Horror"].each do |genre_name|
-#     MovieGenre.find_or_create_by!(name: genre_name)
-#   end
+module Flie::Os
+  CMDS = {
+    IN: {
+      name: :in,
+      access: OsCmd.accesses[:pub],
+      gets: [
+        :email,
+        :password
+      ]
+    },
+    UP: {
+      name: :up,
+      access: OsCmd.accesses[:pub],
+      gets: [
+        :email,
+        :password,
+        :password_confirm
+      ]
+    },
+  }
+
+  GETS = {
+    PASSWORD: {
+      name: :password,
+      input_type: :password
+    },
+    PASSWORD_CONFIRMATION: {
+      name: :password_confirm,
+      input_type: :password
+    },
+    EMAIL: {
+      name: :email,
+      input_type: :email
+    },
+    TEXT: {
+      name: :text,
+      input_type: :text
+    },
+  }
+end
+
+# create gets
+Flie::Os::GETS.each do |k, get|
+  OsGet.create(
+    name: get[:name],
+    prompt: I18n.t("os_gets.prompts.#{get[:name]}"),
+    input_type: get[:input_type]
+  )
+end
+
+# create commands
+Flie::Os::CMDS.each do |k, cmd|
+  os_cmd = OsCmd.create(name: cmd[:name], access: cmd[:access])
+  cmd[:gets].each_with_index{|get, i|
+    OsCmdGet.create(
+      os_cmd: os_cmd,
+      os_get: OsGet.find_by(name: get),
+      step: i
+    )
+  }
+end
