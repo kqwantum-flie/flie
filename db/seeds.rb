@@ -1,4 +1,3 @@
-
 def load_get(k)
   return unless Flie::Os::GETS.keys.include?(k.to_sym)
   get = Flie::Os::GETS[k.to_sym]
@@ -27,4 +26,3 @@ Flie::Os::GETS.keys.each{|k| load_get(k) }
 
 # create commands
 Flie::Os::CMDS.keys.each{|k| load_cmd(k) }
-
