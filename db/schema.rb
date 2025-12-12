@@ -92,13 +92,19 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_12_195157) do
   end
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> dc2acd4 (add os_dos)
   add_foreign_key "os_cmd_gets", "os_cmds"
   add_foreign_key "os_cmd_gets", "os_gets"
   add_foreign_key "os_dos", "flie_os"
   add_foreign_key "os_dos", "os_cmds"
   add_foreign_key "os_dos", "os_gets"
+<<<<<<< HEAD
 =======
 >>>>>>> 775cc84 (add flie_os)
+=======
+>>>>>>> dc2acd4 (add os_dos)
   add_foreign_key "os_logs", "flie_os"
   add_foreign_key "sessions", "users"
   add_foreign_key "yous", "flie_os"
