@@ -35,4 +35,4 @@ module Flie
   end
 end
 # puts I18n.load_path
-Flie::Aos.start
+Flie::Os.start

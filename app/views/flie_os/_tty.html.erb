@@ -7,29 +7,46 @@
   };
 </script>
 
-<% ps1 = ">" + "[Aro::#{@flie_o.class.name}]>:" %>
+<% ps1 = ">[Aro::#{@flie_o.class.name}]>:$" %>
 
 <div id="tty" class="bg-black text-green overflow-x-hidden">
-  <div id="frame" class="flex flex-col w-screen h-screen text-2xl font-semibold font-mono selection:bg-green selection:text-black">
-    <div id="output" class="flex flex-col grow overflow-y-auto">
-      <% @flie_o.os_logs.each_with_index do |os_log, idx| %>
-      <% anchor = idx == @flie_o.os_logs.count - 1 ? :current.to_s : os_log.id %>
-        <div id="<%= "in_#{anchor}" %>">
-          <%= "#{ps1}#{os_log.in}" %>
-        </div>
-        <div id="<%= "out_#{anchor}" %>">
-          <%= "#{ps1}#{os_log.out}" %>
-        </div>
+  <div id="frame" class="flex flex-col overflow-y-auto w-screen h-screen text-2xl font-semibold font-mono selection:bg-green selection:text-black">
+    <div id="output" class="flex flex-col-reverse grow">
+
+      <% @flie_o.os_logs.reverse.each_with_index do |os_log, idx| %>
+      <% anchor = idx == Aro::Mancy::O ? :current.to_s : os_log.id %>
+        <% next unless os_log.in.present? %>
+        <% if os_log.out.present? %>
+          <div id="<%= "out_#{anchor}" %>">
+            <pre><%= os_log.out&.strip %></pre>
+          </div>
+        <% end %>
+
+        <% if os_log.in.present? %>
+          <div id="<%= "in_#{anchor}" %>">
+            <pre><%= "#{ps1} #{os_log.in&.strip}" %></pre>
+          </div>
+        <% end %>
+
       <% end %>
+
     </div>
-    <div id="input" class="flex grow-none flex-row">
+    <div class="flex grow-none flex-row">
       <div class="ps1">
-        <%= "#{ps1}$" %>
+
+        <% os_do = flie_o.os_dos.find_by(status: :active) %>
+        <% if os_do.present? %>
+          <%= "#{os_do.os_get.prompt}:" %>
+        <% else %>
+          <%= ps1 %>
+        <% end %>
+
       </div>
 
       <%= form_with url: flie_o_os_logs_path(@flie_o.id), html: {class: "flex grow ml-[1rem]"} do |form| %>
-        <input id="os_log_in" name="os_log[in]" class="grow focus:outline-none" autocomplete="off" autofocus></input>
+        <input id="os_log_in" name="os_log[in]" class="grow focus:outline-none" spellcheck="false" autocomplete="off" autofocus></input>
       <% end %>
+
     </div>
   </div>
 </div>

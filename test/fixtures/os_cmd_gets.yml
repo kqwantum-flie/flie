@@ -1,0 +1,11 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  os_cmd: one
+  os_get: one
+  step: 1
+
+two:
+  os_cmd: two
+  os_get: two
+  step: 1
