@@ -10,7 +10,21 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_04_211940) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_12_024747) do
+  create_table "flie_os", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "os_logs", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.integer "flie_o_id", null: false
+    t.string "in"
+    t.string "out"
+    t.datetime "updated_at", null: false
+    t.index ["flie_o_id"], name: "index_os_logs_on_flie_o_id"
+  end
+
   create_table "sessions", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "ip_address"
@@ -28,5 +42,19 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_04_211940) do
     t.index ["email_address"], name: "index_users_on_email_address", unique: true
   end
 
+  create_table "yous", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.integer "flie_o_id", null: false
+    t.string "pwd", default: "/", null: false
+    t.datetime "updated_at", null: false
+    t.integer "user_id"
+    t.index ["flie_o_id"], name: "index_yous_on_flie_o_id"
+    t.index ["pwd"], name: "index_yous_on_pwd"
+    t.index ["user_id"], name: "index_yous_on_user_id"
+  end
+
+  add_foreign_key "os_logs", "flie_os"
   add_foreign_key "sessions", "users"
+  add_foreign_key "yous", "flie_os"
+  add_foreign_key "yous", "users"
 end

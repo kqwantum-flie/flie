@@ -5,9 +5,9 @@ class ApplicationController < ActionController::Base
 
   around_action :switch_locale
 
-  def default_url_options
-    { locale: I18n.locale }
-  end
+  # def default_url_options
+  #   { locale: I18n.locale }
+  # end
 
   # todo: add locale preference to user settings (none of that exists yet)
   # https://guides.rubyonrails.org/i18n.html#setting-the-locale-from-url-params
