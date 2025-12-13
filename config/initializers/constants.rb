@@ -1,6 +1,13 @@
 module Flie
   module Os
     CMDS = {
+      AROFLIE: {
+        name: :aroflie,
+        access: Aro::Mancy::OS,
+        gets: [
+          :command
+        ]
+      },
       IN: {
         name: :in,
         access: Aro::Mancy::O,
@@ -37,6 +44,10 @@ module Flie
     }
 
     GETS = {
+      COMMAND: {
+        name: :command,
+        input_type: :text
+      },
       CONFIRM: {
         name: :confirm,
         input_type: :text

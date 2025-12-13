@@ -1,11 +1,15 @@
 en:
+  aroflie:
+    messages:
+      command_not_available: "the %{cmd} command is not available. available aroflie commands are: %{available_cmds}."
   os_gets:
     prompts:
+      command: "enter aroflie command"
+      confirm: "continue? (y)"
+      email: "enter email"
       new_password: "enter new password"
       password: "enter password"
       password_confirm: "confirm password"
-      email: "enter email"
-      confirm: "continue? (y)"
   flie_os:
     messages:
       doing_nothing: "doing nothing."
@@ -15,8 +19,9 @@ en:
       password_error: "password error."
       password_no_previous: "cannot use previous password."
       passwords_not_equal: "passwords not equal."
-      sign_in_success: "%{name} signed in %{timestamp}."
-      sign_out_success: "%{name} signed out at %{timestamp}."
+      sign_in_success: "[IN]: %{name} at %{timestamp}"
+      sign_out_success: "[OUT]: %{name} at %{timestamp}"
+      user_exists: "%{name} account already taken."
     usage:
       user: |
         USAGE
@@ -28,17 +33,27 @@ en:
           flie [-v | --version] [-h | --help] <command>
 
         COMMANDS
+
+          aroflie
+            run an aos command.
+
+              $ flie aroflie
+            or
+              $ aroflie
+
           passwd
             change password.
 
               $ flie passwd
+            or
+              $ passwd
 
           out
             sign out.
 
               $ file out
-
-            note: equal to typing 'exit'.
+            or
+              $ exit
 
       guest: |
         USAGE

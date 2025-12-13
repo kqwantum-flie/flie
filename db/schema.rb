@@ -10,7 +10,14 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_12_195157) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_13_220916) do
+  create_table "aos_pxies", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "name", null: false
+    t.datetime "updated_at", null: false
+    t.index ["name"], name: "index_aos_pxies_on_name"
+  end
+
   create_table "flie_os", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -34,13 +41,16 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_12_195157) do
   end
 
   create_table "os_dos", force: :cascade do |t|
+    t.integer "aos_pxy_id", null: false
     t.datetime "created_at", null: false
+    t.boolean "doing", default: false
     t.integer "flie_o_id", null: false
     t.string "input"
     t.integer "os_cmd_id", null: false
     t.integer "os_get_id", null: false
     t.integer "status", default: 0
     t.datetime "updated_at", null: false
+    t.index ["aos_pxy_id"], name: "index_os_dos_on_aos_pxy_id"
     t.index ["flie_o_id"], name: "index_os_dos_on_flie_o_id"
     t.index ["os_cmd_id"], name: "index_os_dos_on_os_cmd_id"
     t.index ["os_get_id"], name: "index_os_dos_on_os_get_id"
@@ -61,6 +71,16 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_12_195157) do
     t.string "out"
     t.datetime "updated_at", null: false
     t.index ["flie_o_id"], name: "index_os_logs_on_flie_o_id"
+  end
+
+  create_table "pxy_excepts", force: :cascade do |t|
+    t.integer "aos_pxy_id", null: false
+    t.string "cmd"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "user_id", null: false
+    t.index ["aos_pxy_id"], name: "index_pxy_excepts_on_aos_pxy_id"
+    t.index ["user_id"], name: "index_pxy_excepts_on_user_id"
   end
 
   create_table "sessions", force: :cascade do |t|
@@ -93,10 +113,13 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_12_195157) do
 
   add_foreign_key "os_cmd_gets", "os_cmds"
   add_foreign_key "os_cmd_gets", "os_gets"
+  add_foreign_key "os_dos", "aos_pxies"
   add_foreign_key "os_dos", "flie_os"
   add_foreign_key "os_dos", "os_cmds"
   add_foreign_key "os_dos", "os_gets"
   add_foreign_key "os_logs", "flie_os"
+  add_foreign_key "pxy_excepts", "aos_pxies"
+  add_foreign_key "pxy_excepts", "users"
   add_foreign_key "sessions", "users"
   add_foreign_key "yous", "flie_os"
   add_foreign_key "yous", "users"
