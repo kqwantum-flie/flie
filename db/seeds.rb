@@ -26,3 +26,15 @@ Flie::Os::GETS.keys.each{|k| load_get(k) }
 
 # create commands
 Flie::Os::CMDS.keys.each{|k| load_cmd(k) }
+
+# ez user for development
+if Rails.env.development?
+  eamdc = :"e@m.c"
+  pass = :pass
+  eamdc_user = User.new(
+    email_address: eamdc.to_s,
+    password: pass.to_s,
+    password_confirmation: pass.to_s,
+  )
+  eamdc_user.save unless User.find_by(email_address: eamdc).present?
+end
