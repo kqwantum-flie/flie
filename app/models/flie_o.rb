@@ -14,6 +14,12 @@ class FlieO < ApplicationRecord
     os_logs.create(out: out)
   end
 
+  def clear_terminal!
+    os_logs.destroy_all
+    os_dos.destroy_all
+    save
+  end
+
   private
 
   def create_you

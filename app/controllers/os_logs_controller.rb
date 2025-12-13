@@ -13,6 +13,7 @@ class OsLogsController < ApplicationController
 
   def set_flie_o
     resume_session
+    @current_user = Current.user
     @flie_o = FlieO.find(params.expect(:flie_o_id))
   end
 
@@ -20,7 +21,14 @@ class OsLogsController < ApplicationController
     params.require(:os_log).permit(:in)
   end
 
+  # return true means that Flie::Os is running an os_cmd
+  #   example: getting sign up info.
+  #   todo: ctrl+c in the browser breaks out of the
+  #         current os_cmd if present
+  # return false means that flie is awaiting input from the
+  # web terminal
   def override?
+
     # active os_do
     active_os_do = @flie_o.os_dos.find_by(status: :active)
     if active_os_do.present?
@@ -67,9 +75,9 @@ class OsLogsController < ApplicationController
     end
 
     # helps
-    helps = ["-h", "--help", "help"]
+    helps = ["-h", "--help"]
     if helps.include?(args[Aro::Mancy::O]) || helps.include?(args[Aro::Mancy::S])
-      if Current.user.nil?
+      if @current_user.nil?
         @os_log.out = I18n.t("flie_os.usage.guest")
       else
         @os_log.out = I18n.t("flie_os.usage.user")
@@ -77,30 +85,67 @@ class OsLogsController < ApplicationController
       return false
     end
 
-    # this routes the user entering 'exit' to the 'out' os_cmd
-    return true if short_circuit?(:exit, :out, args)
-    # this allow for entering only 'passwd' to change password.
-    return true if short_circuit?(:passwd, :passwd, args)
+    return true if short_circuit?(# 'exit' => 'flie out' os_cmd.
+      OsCmd::EXIT,
+      Flie::Os::CMDS[:OUT][:name],
+      args
+    ) || short_circuit?(# 'nuke' => 'flie clear' os_cmd.
+      OsCmd::NUKE,
+      Flie::Os::CMDS[:CLEAR][:name],
+      args,
+      require_user: false
+    ) || short_circuit?(          # 'passwd' => 'flie passwd' os_cmd.
+      Flie::Os::CMDS[:PASSWD][:name],
+      Flie::Os::CMDS[:PASSWD][:name],
+      args
+    )
 
     # os_cmds
     os_cmds = OsCmd.where(name: args[Aro::Mancy::S]&.strip)
-    if Current.user.nil?
-      # pub commands
+    if @current_user.nil? &&
       os_cmd = os_cmds.find_by(access: :pub)
-      if os_cmd.present?
-        spawn_os_get(os_cmd)
-        # do not save os_log
-        return true
-      else
-        @os_log.out = I18n.t("flie_os.messages.invalid_command")
-      end
+      # public flie commands
+      spawn_os_do(os_cmd)
+      return true # do not save @os_log
+    elsif os_cmd = os_cmds.find_by(access: [:pub, :pro])
+      # protected flie commands
+      spawn_os_do(os_cmd)
+      return true # do not save @os_log
+    elsif os_cmd = os_cmds.find_by(access: :pri)
+      # private flie commands
+      spawn_os_do(os_cmd)
+      return true # do not save @os_log
     else
-      os_cmd = os_cmds.first
-      if os_cmd.present?
-        spawn_os_get(os_cmd)
+      @os_log.out = I18n.t("flie_os.messages.invalid_command")
+    end
+
+    unless @current_user.nil?
+      # passthrough to aos
+      af_os_cmd = OsCmd.find_by(name: :aroflie)
+      # get the os_cmd's first os_get
+      af_os_get = af_os_cmd.os_cmd_gets.find_by(step: Aro::Mancy::O).os_get
+      # create an os_do
+      af_os_do = @flie_o.os_dos.create(os_cmd: af_os_cmd, os_get: af_os_get)
+      # set os_do's input to passthrough args
+      af_os_do.input = args.join(" ")
+      # save and complete the os_do
+      af_os_do.save
+      af_os_do.complete!
+      # compute expects all of the os_cmd's
+      # os_dos to be status -> complete
+      @os_log.out = compute(af_os_cmd)
+    end
+
+    # returning false causes @os_log to be saved
+    return false
+  end
+
+  def short_circuit?(cmd, route_cmd, args, require_user: true)
+    if (require_user ? @current_user.present? : true) &&
+      cmd.to_s == args[Aro::Mancy::O].strip
+      if os_cmd = OsCmd.find_by(name: route_cmd)
+        spawn_os_do(os_cmd)
         return true
-      else
-        @os_log.out = I18n.t("flie_os.messages.invalid_command")
       end
     end
 
@@ -109,6 +154,12 @@ class OsLogsController < ApplicationController
 
   def compute(os_cmd)
     case os_cmd.name.to_sym
+    when Flie::Os::CMDS[:AROFLIE][:name]
+      compute_aroflie(os_cmd)
+    when Flie::Os::CMDS[:CLEAR][:name]
+      compute_clear(os_cmd)
+    when Flie::Os::CMDS[:CRS][:name]
+      compute_crs(os_cmd)
     when Flie::Os::CMDS[:IN][:name]
       compute_in(os_cmd)
     when Flie::Os::CMDS[:OUT][:name]
@@ -120,26 +171,53 @@ class OsLogsController < ApplicationController
     end
   end
 
-  def short_circuit?(cmd, route_cmd, args)
-    if Current.user.present? &&
-      cmd.to_s == args[Aro::Mancy::O].strip
-
-      os_cmd = OsCmd.find_by(name: route_cmd)
-      if os_cmd.present?
-        spawn_os_get(os_cmd)
-        return true
-      end
-    end
-
-    return false
-  end
-
-  def spawn_os_get(os_cmd)
+  def spawn_os_do(os_cmd)
     # get the os_cmd's first os_get
     os_get = os_cmd.os_cmd_gets.find_by(step: Aro::Mancy::O).os_get
 
     # create an os_do
     os_do = @flie_o.os_dos.create(os_cmd: os_cmd, os_get: os_get)
+  end
+
+  def compute_aroflie(os_cmd)
+    response = ""
+    c_do = latest_os_do_for(os_cmd, Aro::Mancy::O)
+    if c_do.present?
+      return OsDo::BUSY if c_do.doing
+      c_do.update(doing: true)
+      Dir.chdir(Flie::Os::AROFLIE_PATH) do
+        response = c_do.aos_pxy.compute(@flie_o.you.user, c_do)
+        c_do.update(doing: false)
+      end
+    else
+      # something went wrong
+      response = I18n.t("flie_os.messages.invalid_command")
+    end
+    response
+  end
+
+  def compute_crs(os_cmd)
+    response = ""
+    n_do = latest_os_do_for(os_cmd, Aro::Mancy::O)
+    if n_do.present?
+      response = CRS.hello
+    else
+      # something went wrong
+      response = I18n.t("flie_os.messages.invalid_command")
+    end
+    response
+
+  def compute_clear(os_cmd)
+    response = ""
+
+    c_do = latest_os_do_for(os_cmd, Aro::Mancy::O)
+    if c_do.input == Flie::Os::Y.to_s
+      @flie_o.clear_terminal!
+    else
+      response += I18n.t("flie_os.messages.doing_nothing")
+    end
+
+    return response
   end
 
   def compute_in(os_cmd)
@@ -165,7 +243,7 @@ class OsLogsController < ApplicationController
     response = ""
 
     c_do = latest_os_do_for(os_cmd, Aro::Mancy::O)
-    if c_do.input == :y.to_s
+    if c_do.input == Flie::Os::Y.to_s
       response += I18n.t("flie_os.messages.sign_out_success", name: @flie_o.you.user.email_address, timestamp: Time.now)
       response += Current.session.user_agent
       response += Current.session.ip_address
@@ -193,7 +271,7 @@ class OsLogsController < ApplicationController
       response += I18n.t("flie_os.messages.passwords_not_equal")
     else
       user = User.authenticate_by(
-        email_address: Current.user.email_address,
+        email_address: @current_user.email_address,
         password: current_do&.input
       )
       if user.present?
@@ -222,18 +300,28 @@ class OsLogsController < ApplicationController
     e_do = latest_os_do_for(os_cmd, Aro::Mancy::O)
     p_do = latest_os_do_for(os_cmd, Aro::Mancy::S)
     pc_do = latest_os_do_for(os_cmd, Aro::Mancy::OS)
-    @flie_o.you.user = User.new(
-      email_address: e_do&.input,
-      password: p_do&.input,
-      password_confirmation: pc_do&.input
-    )
-    if @flie_o.you.user.save
-      start_new_session_for(@flie_o.you.user)
-      @flie_o.you.save
-      # done this way because of routes
-      @flie_o.generate_sign_in_os_log
+    unless User.find_by(email_address: e_do&.input).present?
+      @flie_o.you.user = User.new(
+        email_address: e_do&.input,
+        password: p_do&.input,
+        password_confirmation: pc_do&.input
+      )
+      if @flie_o.you.user.save
+        start_new_session_for(@flie_o.you.user)
+        @flie_o.you.save
+        # done this way because of routes
+        @flie_o.generate_sign_in_os_log
+        Dir.chdir(Flie::Os::AROFLIE_PATH) do
+          # initialize aos user
+          response = pc_do.aos_pxy.init_user(@flie_o.you.user)
+        end
+      else
+        response += "#{@flie_o.you.user.errors.messages}"
+      end
     else
-      response += @flie_o.you.user.errors.messages
+      response = I18n.t("flie_os.messages.user_exists", name: e_do.input)
+      response += "\n"
+      response += I18n.t("flie_os.messages.doing_nothing")
     end
 
     return response
@@ -242,35 +330,6 @@ class OsLogsController < ApplicationController
   def latest_os_do_for(os_cmd, step)
     @flie_o.os_dos.order(created_at: :desc).find_by(
       os_get: os_cmd.os_cmd_gets.find_by(step: step).os_get
-    )
-  end
-
-  def latest_email_os_do_for(os_cmd)
-    latest_os_do_for(os_cmd, Aro::Mancy::O)
-    email_os_get = os_cmd.os_cmd_gets.find_by(step: Aro::Mancy::O).os_get
-    @flie_o.os_dos.order(created_at: :desc).find_by(
-      os_get: email_os_get
-    )
-  end
-
-  def latest_password_os_do_for(os_cmd)
-    password_os_get = os_cmd.os_cmd_gets.find_by(step: Aro::Mancy::S).os_get
-    @flie_o.os_dos.order(created_at: :desc).find_by(
-      os_get: password_os_get
-    )
-  end
-
-  def latest_password_confirm_os_do_for(os_cmd)
-    password_confirm_os_get = os_cmd.os_cmd_gets.find_by(step: Aro::Mancy::OS).os_get
-    @flie_o.os_dos.order(created_at: :desc).find_by(
-      os_get: password_confirm_os_get
-    )
-  end
-
-  def latest_confirm_os_do_for(os_cmd)
-    text_os_get = os_cmd.os_cmd_gets.find_by(step: Aro::Mancy::O).os_get
-    @flie_o.os_dos.order(created_at: :desc).find_by(
-      os_get: text_os_get
     )
   end
 end

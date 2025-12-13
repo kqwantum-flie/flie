@@ -24,7 +24,7 @@
           <div id="<%= "out_#{anchor}" %>">
             <% display_out = os_log.out&.strip %>
             <% if display_out.include?(:USAGE.to_s) %>
-            <%# large blocks of text %>
+              <%# large blocks of text %>
               <pre>
                 <%= display_out %>
               </pre>

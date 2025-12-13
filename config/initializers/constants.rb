@@ -1,6 +1,28 @@
 module Flie
   module Os
+    Y = :y
     CMDS = {
+      AROFLIE: {
+        name: :aroflie,
+        access: Aro::Mancy::OS,
+        gets: [
+          :nothing,
+        ]
+      },
+      CLEAR: {
+        name: :clear,
+        access: Aro::Mancy::O,
+        gets: [
+          :confirm,
+        ]
+      },
+      CRS: {
+        name: :crs,
+        access: Aro::Mancy::S,
+        gets: [
+          :nothing
+        ]
+      },
       IN: {
         name: :in,
         access: Aro::Mancy::O,
@@ -36,7 +58,15 @@ module Flie
       },
     }
 
+    # the display text for each GETS is
+    # defined in localization files.
+    # right now the values are getting set
+    # in the db/seed file.
     GETS = {
+      COMMAND: { # not used right now
+        name: :command,
+        input_type: :text
+      },
       CONFIRM: {
         name: :confirm,
         input_type: :text
@@ -48,6 +78,10 @@ module Flie
       NEW_PASSWORD: {
         name: :new_password,
         input_type: :password
+      },
+      NOTHING: {
+        name: :nothing,
+        input_type: :nothing
       },
       PASSWORD: {
         name: :password,
