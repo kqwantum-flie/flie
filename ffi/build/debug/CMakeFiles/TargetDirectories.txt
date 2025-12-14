@@ -1,0 +1,3 @@
+/home/steve/Projects/flie/ffi/build/debug/CMakeFiles/crs.dir
+/home/steve/Projects/flie/ffi/build/debug/CMakeFiles/edit_cache.dir
+/home/steve/Projects/flie/ffi/build/debug/CMakeFiles/rebuild_cache.dir

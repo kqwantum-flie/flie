@@ -1,0 +1,7 @@
+{
+	"InstallScripts" : 
+	[
+		"/home/steve/Projects/flie/ffi/build/debug/cmake_install.cmake"
+	],
+	"Parallel" : false
+}

@@ -117,6 +117,8 @@ class OsLogsController < ApplicationController
 
   def compute(os_cmd)
     case os_cmd.name.to_sym
+    when Flie::Os::CMDS[:CRS][:name]
+      compute_crs(os_cmd)
     when Flie::Os::CMDS[:AROFLIE][:name]
       compute_aroflie(os_cmd)
     when Flie::Os::CMDS[:IN][:name]
@@ -160,6 +162,18 @@ class OsLogsController < ApplicationController
         response = c_do.aos_pxy.compute(@flie_o.you.user, c_do)
         c_do.update(doing: false)
       end
+    else
+      # something went wrong
+      response = I18n.t("flie_os.messages.invalid_command")
+    end
+    response
+  end
+
+  def compute_crs(os_cmd)
+    response = ""
+    n_do = latest_os_do_for(os_cmd, Aro::Mancy::O)
+    if n_do.present?
+      response = CRS.hello
     else
       # something went wrong
       response = I18n.t("flie_os.messages.invalid_command")

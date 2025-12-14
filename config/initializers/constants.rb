@@ -8,6 +8,13 @@ module Flie
           :command
         ]
       },
+      CRS: {
+        name: :crs,
+        access: Aro::Mancy::S,
+        gets: [
+          :command,
+        ]
+      },
       IN: {
         name: :in,
         access: Aro::Mancy::O,
