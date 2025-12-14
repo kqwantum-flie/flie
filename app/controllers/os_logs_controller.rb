@@ -154,6 +154,8 @@ class OsLogsController < ApplicationController
 
   def compute(os_cmd)
     case os_cmd.name.to_sym
+    when Flie::Os::CMDS[:CRS][:name]
+      compute_crs(os_cmd)
     when Flie::Os::CMDS[:AROFLIE][:name]
       compute_aroflie(os_cmd)
     when Flie::Os::CMDS[:CLEAR][:name]
@@ -206,6 +208,7 @@ class OsLogsController < ApplicationController
       response = I18n.t("flie_os.messages.invalid_command")
     end
     response
+  end
 
   def compute_clear(os_cmd)
     response = ""
