@@ -65,7 +65,7 @@ class AosPxy < ApplicationRecord
           AosPxy::ALLOW_DEFAULTS[:CLI].map{|c| "#{:aro.to_s} #{c}"} +
           Aro::Dom::D.reserved_words
 
-        return I18n.t("aroflie.messages.command_not_available", cmd: cmd, available_cmds: available_cmds.sort.join(", "))
+        return I18n.t("aroflie.messages.command_not_available", cmd: cmd, available_cmds: available_cmds.sort.join("\n"))
       end
     end
 
