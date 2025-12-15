@@ -23,16 +23,9 @@
         <% if os_log.out.present? %>
           <div id="<%= "out_#{anchor}" %>">
             <% display_out = os_log.out&.strip %>
-            <% if display_out.include?(:USAGE.to_s) %>
-              <%# large blocks of text %>
-              <pre>
-                <%= display_out %>
-              </pre>
-            <% else %>
-              <div class="text-balance">
-                <%= display_out %>
-              </div>
-            <% end %>
+            <%# <pre class="whitespace-pre-wrap"> %>
+              <%= tag.pre(display_out) -%>
+            <%# </pre> %>
           </div>
         <% end %>
 

@@ -5,7 +5,6 @@
 # `$XDG_CONFIG_HOME/git/ignore` or `~/.config/git/ignore`
 
 aroflie/*
-ffi/build/*
 
 # Ignore bundler config.
 /.bundle
