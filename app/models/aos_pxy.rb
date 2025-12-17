@@ -4,21 +4,23 @@ class AosPxy < ApplicationRecord
 
   ALLOW_DEFAULTS = {
     AOS: [
+      # see other comment below: # todo: add aos lib usage as pxy_excepts
       Aos::Os::CMDS[:AMG][:key],
       Aos::Os::CMDS[:CD][:key],
       Aos::Os::CMDS[:CONFIG][:key],
+      Aos::Os::CMDS[:DATA][:key],
       Aos::Os::CMDS[:HELP][:key],
       Aos::Os::CMDS[:LS][:key],
       Aos::Os::CMDS[:PWD][:key],
     ],
     CLI: [
       CLI::CMDS[:ARO][:CONFIG],
-      CLI::CMDS[:ARO][:DECK],
-      CLI::CMDS[:DECK][:DRAW],
-      CLI::CMDS[:DECK][:NEW],
-      CLI::CMDS[:DECK][:REPLACE],
-      CLI::CMDS[:DECK][:SHOW],
-      CLI::CMDS[:DECK][:SHUFFLE],
+      CLI::CMDS[:ARO][:TECK],
+      CLI::CMDS[:TECK][:DRAW],
+      CLI::CMDS[:TECK][:NEW],
+      CLI::CMDS[:TECK][:REPLACE],
+      CLI::CMDS[:TECK][:SHOW],
+      CLI::CMDS[:TECK][:SHUFFLE],
     ]
   }
 
@@ -54,6 +56,7 @@ class AosPxy < ApplicationRecord
       end
 
       # pxy_excepts here
+      # todo: add aos lib usage as pxy_excepts
       cmd_excepts = pxy_excepts.where(cmd: args)
       unless is_allowed
         is_allowed = cmd_excepts.any?
