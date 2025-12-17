@@ -3,7 +3,7 @@ source "https://rubygems.org"
 # ruby ffi
 gem "ffi", "~> 1.17.2"
 # aro cli gem
-gem "aro", "~> 0.2.1"
+gem "aro", "~> 0.2.2"
 # localization support for rails
 gem "rails-i18n", "~> 8.1.0"
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
