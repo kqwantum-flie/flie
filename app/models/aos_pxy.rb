@@ -24,6 +24,10 @@ class AosPxy < ApplicationRecord
     ]
   }
 
+  def self.default
+    AosPxy.find_or_create_by(name: :default)
+  end
+
   def init_user(user)
     compute(user)
   end
@@ -73,7 +77,9 @@ class AosPxy < ApplicationRecord
     end
 
     # run it
-    Flie::Os.system_pxy(cmd, user)
+    Dir.chdir(Flie::Os::AROFLIE_PATH) do
+      Flie::Os.system_pxy(cmd, user)
+    end
   end
 
   private

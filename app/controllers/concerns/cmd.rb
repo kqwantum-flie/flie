@@ -163,10 +163,8 @@ module Cmd
     if c_do.present?
       return OsDo::BUSY if c_do.doing
       c_do.update(doing: true)
-      Dir.chdir(Flie::Os::AROFLIE_PATH) do
-        response = c_do.aos_pxy.compute(@flie_o.you.user, c_do)
-        c_do.update(doing: false)
-      end
+      response = c_do.aos_pxy.compute(@flie_o.you.user, c_do)
+      c_do.update(doing: false)
     else
       # something went wrong
       response = I18n.t("flie_os.messages.invalid_command")
@@ -197,8 +195,14 @@ module Cmd
       password: p_do&.input
     )
     if user.present?
-      start_new_session_for(user)
-      user.you.flie_o.generate_sign_in_os_log
+      unless user.unverified?
+        start_new_session_for(user)
+        user.you.flie_o.generate_sign_in_os_log
+      else
+        # todo: create a way to resend verification email
+        # eg: flie verify <email_address>
+        response += I18n.t("flie_os.messages.verify_email", email_address: user.email_address)
+      end
     else
       response += I18n.t("flie_os.messages.invalid_account")
     end
@@ -211,12 +215,14 @@ module Cmd
 
     c_do = latest_os_do_for(os_cmd, Aro::Mancy::O)
     if c_do.input == Flie::Os::Y.to_s
-      response += I18n.t("flie_os.messages.sign_out_success", name: @flie_o.you.user.email_address, timestamp: Time.now)
+      response = I18n.t("flie_os.messages.sign_out_success", name: @flie_o.you.user.email_address, timestamp: Time.now)
+      response += "\n"
       response += Current.session.user_agent
+      response += "\n"
       response += Current.session.ip_address
       terminate_session
     else
-      response += I18n.t("flie_os.messages.doing_nothing")
+      response = I18n.t("flie_os.messages.doing_nothing")
     end
 
     return response
@@ -267,28 +273,29 @@ module Cmd
     e_do = latest_os_do_for(os_cmd, Aro::Mancy::O)
     p_do = latest_os_do_for(os_cmd, Aro::Mancy::S)
     pc_do = latest_os_do_for(os_cmd, Aro::Mancy::OS)
-    unless User.find_by(email_address: e_do&.input).present?
-      @flie_o.you.user = User.new(
+    existing_user = User.find_by(email_address: e_do&.input)
+    unless existing_user.present?
+      user = User.new(
         email_address: e_do&.input,
         password: p_do&.input,
         password_confirmation: pc_do&.input
       )
-      if @flie_o.you.user.save
-        start_new_session_for(@flie_o.you.user)
-        @flie_o.you.save
-        # done this way because of routes
-        @flie_o.generate_sign_in_os_log
-        Dir.chdir(Flie::Os::AROFLIE_PATH) do
-          # initialize aos user
-          response = pc_do.aos_pxy.init_user(@flie_o.you.user)
-        end
+      if user.save
+        user.send_verification_email!
+        response += I18n.t("flie_os.messages.verify_email", email_address: user.email_address)
       else
-        response += "#{@flie_o.you.user.errors.messages}"
+        response += "#{user.errors.messages}"
       end
     else
       response = I18n.t("flie_os.messages.user_exists", name: e_do.input)
       response += "\n"
-      response += I18n.t("flie_os.messages.doing_nothing")
+      if existing_user.unverified?
+        # resend verification email
+        existing_user.send_verification_email!
+        response += I18n.t("flie_os.messages.verify_email", email_address: existing_user.email_address)
+      else
+        response += I18n.t("flie_os.messages.doing_nothing")
+      end
     end
 
     return response

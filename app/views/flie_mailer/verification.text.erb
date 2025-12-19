@@ -1,0 +1,2 @@
+<%= "#{Flie::Os.name} account verification for #{@user.email_address}" %>
+click here to verify: <%= verify_flie_o_url(@user.verification_token) %>

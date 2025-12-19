@@ -34,8 +34,9 @@ module Flie
     config.i18n.default_locale = :en
     config.i18n.available_locales = [:en]
 
-    config.action_mailer.delivery_method = :ses_v2
-    config.action_mailer.ses_v2_settings = { region: 'us-east-2' }
+    # todo: implement ses when i own a domain for it
+    # config.action_mailer.delivery_method = :ses_v2
+    # config.action_mailer.ses_v2_settings = { region: 'us-east-2' }
   end
 end
 

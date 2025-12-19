@@ -35,6 +35,7 @@ if Rails.env.development?
     email_address: eamdc.to_s,
     password: pass.to_s,
     password_confirmation: pass.to_s,
+    status: Aro::Mancy::S,
   )
   eamdc_user.save unless User.find_by(email_address: eamdc).present?
 end
