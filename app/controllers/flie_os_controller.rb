@@ -11,12 +11,13 @@ class FlieOsController < ApplicationController
 
   def verify
     user = User.find_by(verification_token: params[:id])
-    if user.present?
+    if params[:id].present? && user.present?
       if user.verified?
         @flie_o.os_logs.create(out: "email already verified.")
       else
         # set user to verified status
         user.verified!
+        user.update(verification_token: nil)
 
         # generate verified success os_log
         @flie_o.os_logs.create(out: "email verified successfully.")
