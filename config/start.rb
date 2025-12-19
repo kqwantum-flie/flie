@@ -23,7 +23,7 @@ module Flie
         you_arg = "#{Aos::Os::YOU_FLAG} #{user.aroflie_you}"
       end
 
-      return `#{:aos} #{cmd} #{you_arg}`
+      `#{:aos} #{cmd} #{you_arg}`
     end
   end
 end

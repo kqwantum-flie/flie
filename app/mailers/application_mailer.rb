@@ -1,4 +1,4 @@
 class ApplicationMailer < ActionMailer::Base
-  default from: :"#{Flie::Os::AROFLIE_PATH}@flie.proton.me".to_s
+  default from: "droond374@gmail.com" #Rails.application.credentials.dig(mailer: :user_name)
   layout :mailer.to_s
 end

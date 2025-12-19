@@ -96,8 +96,11 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_13_220916) do
     t.datetime "created_at", null: false
     t.string "email_address", null: false
     t.string "password_digest", null: false
+    t.integer "status", default: 0
     t.datetime "updated_at", null: false
+    t.string "verification_token"
     t.index ["email_address"], name: "index_users_on_email_address", unique: true
+    t.index ["verification_token"], name: "index_users_on_verification_token"
   end
 
   create_table "yous", force: :cascade do |t|

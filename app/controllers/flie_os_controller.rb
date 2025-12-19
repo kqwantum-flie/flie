@@ -1,5 +1,5 @@
 class FlieOsController < ApplicationController
-  allow_unauthenticated_access only: %i[ new show ]
+  allow_unauthenticated_access only: %i[new show verify]
   before_action :set_you
 
   def new
@@ -7,7 +7,38 @@ class FlieOsController < ApplicationController
   end
 
   def show
+  end
 
+  def verify
+    user = User.find_by(verification_token: params[:id])
+    if user.present?
+      if user.verified?
+        @flie_o.os_logs.create(out: "email already verified.")
+      else
+        # set user to verified status
+        user.verified!
+
+        # generate verified success os_log
+        @flie_o.os_logs.create(out: "email verified successfully.")
+
+        # assign user to @flie_o.you
+        @flie_o.you.user = user
+        @flie_o.you.save
+
+        # start a new session
+        start_new_session_for(@flie_o.you.user)
+
+        # generate sign in os_log
+        @flie_o.generate_sign_in_os_log
+
+        # initialize aos user
+        AosPxy.default.init_user(@flie_o.you.user)
+      end
+    else
+      @flie_o.os_logs.create(out: "could not verify email.")
+    end
+
+    redirect_to @flie_o
   end
 
   private

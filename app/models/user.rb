@@ -4,12 +4,27 @@ class User < ApplicationRecord
   has_many :pxy_excepts
   has_one :you
 
-  after_create :interface_with_flie
+  after_commit :interface_with_flie
 
   normalizes :email_address, with: ->(e) { e.strip.downcase }
 
+  enum :status, [
+    :unverified,
+    :verified
+  ]
+
   def aroflie_you
     email_address.split("@")[Aro::Mancy::O].gsub(/[^\w]/, "_")
+  end
+
+  def send_verification_email!
+    t = rand(9999..999999).to_s +
+      Aro::T.read_dev_tarot(false) +
+      rand(9999..999999).to_s +
+      Aro::T.read_dev_tarot(false)
+
+    update(verification_token: t)
+    FlieMailer.verification(self.reload).deliver_now!
   end
 
 
@@ -18,6 +33,7 @@ class User < ApplicationRecord
   # this assigns a flie_o and
   # you to the user if needed.
   def interface_with_flie
+    return unless verified?
     return unless you.nil?
 
     # grab any existing userless you

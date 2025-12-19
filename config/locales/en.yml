@@ -23,6 +23,7 @@ en:
       sign_in_success: "[IN]: %{name} at %{timestamp}"
       sign_out_success: "[OUT]: %{name} at %{timestamp}"
       user_exists: "%{name} account already taken."
+      verify_email: "a verification email was sent to %{email_address}. check your email and click the verification link to complete sign up."
     usage:
       user: |
         USAGE

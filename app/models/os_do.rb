@@ -16,6 +16,6 @@ class OsDo < ApplicationRecord
   private
 
   def set_aos_pxy
-    self.aos_pxy = AosPxy.find_or_create_by(name: :default) if self.aos_pxy.nil?
+    self.aos_pxy = AosPxy.default if self.aos_pxy.nil?
   end
 end
