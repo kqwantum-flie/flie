@@ -73,7 +73,7 @@ class AosPxy < ApplicationRecord
     end
 
     # run it
-    Flie::Os.system(cmd, user)
+    Flie::Os.system_pxy(cmd, user)
   end
 
   private
