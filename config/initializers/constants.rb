@@ -4,14 +4,14 @@ module Flie
     CMDS = {
       AROFLIE: {
         name: :aroflie,
-        access: Aro::Mancy::OS,
+        access: Aro::Mancy::S,
         gets: [
           :nothing,
         ]
       },
       CLEAR: {
         name: :clear,
-        access: Aro::Mancy::O,
+        access: Aro::Mancy::S,
         gets: [
           :confirm,
         ]
@@ -26,18 +26,25 @@ module Flie
       },
       OUT: {
         name: :out,
-        access: Aro::Mancy::OS,
+        access: Aro::Mancy::S,
         gets: [
           :confirm,
         ]
       },
       PASSWD: {
         name: :passwd,
-        access: Aro::Mancy::OS,
+        access: Aro::Mancy::S,
         gets: [
           :password,
           :new_password,
           :password_confirm,
+        ]
+      },
+      PXY: {
+        name: :pxy,
+        access: Aro::Mancy::OS,
+        gets: [
+          :command,
         ]
       },
       UP: {

@@ -20,10 +20,25 @@ module Flie
     def self.system_pxy(cmd, user = nil)
       you_arg = ""
       unless user.nil?
-        you_arg = "#{Aos::Os::YOU_FLAG} #{user.aroflie_you}"
+        you_arg = "#{Aos::Os::YOU_FLAG} #{user.email_address}"
       end
 
       `#{:aos} #{cmd} #{you_arg}`
+    end
+
+    def self.generate_eamdc
+      em = Rails.application.credentials.dig(:eamdc, :email_address)
+      pw = Rails.application.credentials.dig(:eamdc, :password)
+
+      return if User.find_by(email_address: em).present?
+      # baton
+      eamdc_user = User.new(
+        email_address: em,
+        password: pw,
+        password_confirmation: pw,
+        status: Aro::Mancy::S,
+      )
+      eamdc_user.save
     end
   end
 end

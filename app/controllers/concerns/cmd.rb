@@ -82,24 +82,19 @@ module Cmd
 
     # os_cmds
     os_cmds = OsCmd.where(name: args[Aro::Mancy::S]&.strip)
-    if @current_user.nil? &&
-      os_cmd = os_cmds.find_by(access: :pub)
-      # public flie commands
-      spawn_os_do(os_cmd)
-      return true # do not save @os_log
-    elsif os_cmd = os_cmds.find_by(access: [:pub, :pro])
-      # protected flie commands
-      spawn_os_do(os_cmd)
-      return true # do not save @os_log
-    elsif os_cmd = os_cmds.find_by(access: :pri)
-      # private flie commands
-      spawn_os_do(os_cmd)
-      return true # do not save @os_log
-    else
-      @os_log.out = I18n.t("flie_os.messages.invalid_command")
-    end
+    if @current_user.present?
+      if os_cmd = os_cmds.find_by(access: :user)
+        # user flie commands
+        spawn_os_do(os_cmd)
+        return true # do not save @os_log
+      elsif @current_user.is_eamdc?
+        if os_cmd = os_cmds.find_by(access: :eamdc)
+          # eamdc flie commands
+          spawn_os_do(os_cmd)
+          return true # do not save @os_log
+        end
+      end
 
-    unless @current_user.nil?
       # passthrough to aos
       af_os_cmd = OsCmd.find_by(name: :aroflie)
       # get the os_cmd's first os_get
@@ -114,6 +109,12 @@ module Cmd
       # compute expects all of the os_cmd's
       # os_dos to be status -> complete
       @os_log.out = compute(af_os_cmd)
+    elsif os_cmd = os_cmds.find_by(access: :guest_only)
+      # guest_only flie commands
+      spawn_os_do(os_cmd)
+      return true # do not save @os_log
+    else
+      @os_log.out = I18n.t("flie_os.messages.invalid_command")
     end
 
     # returning false causes @os_log to be saved

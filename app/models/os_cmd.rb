@@ -6,8 +6,8 @@ class OsCmd < ApplicationRecord
   EXIT = :exit.to_s
 
   enum :access, [
-    :pub,
-    :pro,
-    :pri,
+    :guest_only,
+    :user,
+    :eamdc,
   ]
 end
