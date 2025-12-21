@@ -108,7 +108,7 @@ module Cmd
       af_os_do.complete!
       # compute expects all of the os_cmd's
       # os_dos to be status -> complete
-      @os_log.out = compute(af_os_cmd)
+      @os_log.out = compute_aroflie(af_os_cmd)
     elsif os_cmd = os_cmds.find_by(access: :guest_only)
       # guest_only flie commands
       spawn_os_do(os_cmd)
@@ -135,8 +135,6 @@ module Cmd
 
   def compute(os_cmd)
     case os_cmd.name.to_sym
-    when Flie::Os::CMDS[:AROFLIE][:name]
-      compute_aroflie(os_cmd)
     when Flie::Os::CMDS[:CLEAR][:name]
       compute_clear(os_cmd)
     when Flie::Os::CMDS[:IN][:name]
@@ -198,6 +196,7 @@ module Cmd
     if user.present?
       unless user.unverified?
         start_new_session_for(user)
+        user.you.flie_o.update(width: @flie_o.width)
         user.you.flie_o.generate_sign_in_os_log
       else
         # todo: create a way to resend verification email

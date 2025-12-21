@@ -32,3 +32,18 @@ Flie::Os::GETS.keys.each{|k| load_get(k) }
 Flie::Os::CMDS.keys.each{|k| load_cmd(k) }
 
 Flie::Os.generate_eamdc
+
+if Rails.env.development?
+  em = "test@user.dev"
+  pw = "pass"
+
+  return if User.find_by(email_address: em).present?
+  # baton
+  test_user = User.new(
+    email_address: em,
+    password: pw,
+    password_confirmation: pw,
+    status: Aro::Mancy::S,
+  )
+  test_user.save
+end

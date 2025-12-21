@@ -20,7 +20,7 @@ module Flie
     def self.system_pxy(cmd, user = nil)
       you_arg = ""
       unless user.nil?
-        you_arg = "#{Aos::Os::YOU_FLAG} #{user.email_address}"
+        you_arg = "#{Aos::Os::YOU_FLAG} #{user.is_eamdc? ? Rails.application.credentials.dig(:aos, :root_youser) : user.email_address}"
       end
 
       `#{:aos} #{cmd} #{you_arg}`

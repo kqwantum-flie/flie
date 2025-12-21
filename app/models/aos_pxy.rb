@@ -28,8 +28,19 @@ class AosPxy < ApplicationRecord
     AosPxy.find_or_create_by(name: :default)
   end
 
+  def set_width(flie_o)
+    return if flie_o.you.user.nil? || flie_o.width == Aro::Mancy::O
+    run_it!(:"config width #{flie_o.width}", flie_o.you.user)
+  end
+
   def init_user(user)
-    compute(user)
+    out = run_it!(:"config", user)
+    run_it!(:"config interface lanimret", user)
+    unless user.you.flie_o.nil?
+      set_width(user.you.flie_o)
+    end
+
+    out
   end
 
   def compute(user, os_do = nil)
@@ -61,6 +72,16 @@ class AosPxy < ApplicationRecord
 
       # pxy_excepts here
       # todo: add aos lib usage as pxy_excepts
+      # Dir.chdir(Flie::Os::AROFLIE_PATH) do
+
+      #   fpxies = Aos::Flie.pxies(user.email_address)
+      #   if aos_you.present?
+      #     fpxies = aos_you.fpxies.where(cmd: args.join(" "))
+      #     fpxies = aos_you.fpxies.where(cmd: args[0]) unless fpxies.any?
+      #     fpxies = aos_you.fpxies.where(cmd: [args[0], args[1]].join(" ")) unless fpxies.any?
+      #     is_allowed = fpxies.any?
+      #   end
+      # end
       cmd_excepts = pxy_excepts.where(cmd: args)
       unless is_allowed
         is_allowed = cmd_excepts.any?
@@ -76,13 +97,16 @@ class AosPxy < ApplicationRecord
       end
     end
 
-    # run it
+    run_it!(cmd, user)
+  end
+
+  private
+
+  def run_it!(cmd, user)
     Dir.chdir(Flie::Os::AROFLIE_PATH) do
       Flie::Os.system_pxy(cmd, user)
     end
   end
-
-  private
 
   def maybe_strip_you(args)
     if args.include?(Aos::Os::YOU) &&

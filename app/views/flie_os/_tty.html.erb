@@ -4,15 +4,27 @@
     console.debug("document.readyState: " + document.readyState);
     <%# if (document.readyState == "interactive") { } %>
     if (document.readyState == "complete") {
-      document.getElementById("out_current").scrollIntoView();
+      var oc = document.getElementById("out_current");
+      if (oc != null) {
+        oc.scrollIntoView();
+      }
+
+      var frame = document.getElementById("frame");
+      var font_px = parseFloat(getComputedStyle(frame).fontSize);
+      var width = parseInt(window.innerWidth / (font_px / 1.82));
+      var width_input = document.getElementById("screen_width");
+      width_input.innerText = width;
+      width_input.innerHtml = width;
+      width_input.value = width;
+
+      console.log("set width to: " + width);
     }
   };
 </script>
-
 <% ps1 = ">[#{flie_o.class.name}::#{You.name}]>" %>
 <% display_ps1 = ps1 %>
 <% if current_user.present? %>
-  <% display_ps1 = ">[#{flie_o.you.user.email_address}]>" %>
+  <% display_ps1 = ">[#{current_user.is_eamdc? ? Rails.application.credentials.dig(:aos, :root_youser) : current_user.email_address}]>" %>
 <% end %>
 
 <div id="tty" class="bg-black text-green overflow-x-hidden">
@@ -24,7 +36,7 @@
           <div id="<%= "out_#{anchor}" %>">
             <% display_out = os_log.out&.strip %>
             <%# <pre class="whitespace-pre-wrap"> %>
-              <%= tag.pre(display_out) -%>
+              <%= tag.pre(display_out, style: "white-space: pre-wrap;") -%>
             <%# </pre> %>
           </div>
         <% end %>
@@ -51,6 +63,7 @@
       </div>
 
       <%= form_with url: flie_o_os_logs_path(flie_o.id), html: {class: "flex grow ml-[1rem]"} do |form| %>
+        <%= form.hidden_field :screen_width %>
         <input type="<%= input_type %>" id="os_log_in" name="os_log[in]" class="grow focus:outline-none" spellcheck="false" autocomplete="off" autofocus></input>
       <% end %>
 
