@@ -2,6 +2,7 @@ class FlieO < ApplicationRecord
   has_one :you
   has_many :os_logs
   has_many :os_dos
+  has_many :tbufs
 
   after_create :create_you
   before_validation :set_width
@@ -13,6 +14,7 @@ class FlieO < ApplicationRecord
     out += "\n"
     out += Current.session.ip_address
     out += AosPxy.default.init_user(you.user)
+    out += "\n"
     os_logs.create(out: out)
   end
 

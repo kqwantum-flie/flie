@@ -1,11 +1,13 @@
 source "https://rubygems.org"
 
-# ruby ffi
+# gem "codemirror-rails" #todo: get codemirror working
+gem "aro", "~> 0.2.3"
 gem "ffi", "~> 1.17.2"
-# aro
-gem "aro", "~> 0.2.2"
-# localization support for rails
+gem "htmlentities", "~> 4.4.2"
+gem "rack-cors", "~> 3.0.0"
 gem "rails-i18n", "~> 8.1.0"
+gem "sinatra", "~> 4.2.1"
+
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
 gem "rails", "~> 8.1.1"
 # The modern asset pipeline for Rails [https://github.com/rails/propshaft]
@@ -77,6 +79,6 @@ end
 
 # todo: remove development
 group :production, :development do
-  gem 'aws-sdk-rails', '~> 5'
-  gem 'aws-actionmailer-ses', '~> 1'
+  gem "aws-sdk-rails", "~> 5"
+  gem "aws-actionmailer-ses", "~> 1"
 end

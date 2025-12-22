@@ -4,6 +4,7 @@ class OsLogsController < ApplicationController
   before_action :set_flie_o
 
   def create
+    @final_redirect = Proc.new{redirect_to @flie_o.reload}
     @os_log = @flie_o.os_logs.new(os_log_params)
     @os_log.save unless override?
 
@@ -11,7 +12,7 @@ class OsLogsController < ApplicationController
       @flie_o.update(width: @screen_width.to_i)
     end
 
-    redirect_to @flie_o
+    @final_redirect.call
   end
 
   private

@@ -7,14 +7,14 @@ class AosPxy < ApplicationRecord
       # see other comment below: # todo: add aos lib usage as pxy_excepts
       Aos::Os::CMDS[:AMG][:key],
       Aos::Os::CMDS[:CD][:key],
-      Aos::Os::CMDS[:CONFIG][:key],
+      Aos::Os::CMDS[:COR][:key],
       Aos::Os::CMDS[:DATA][:key],
       Aos::Os::CMDS[:HELP][:key],
       Aos::Os::CMDS[:LS][:key],
       Aos::Os::CMDS[:PWD][:key],
     ],
     CLI: [
-      CLI::CMDS[:ARO][:CONFIG],
+      CLI::CMDS[:ARO][:COR],
       CLI::CMDS[:ARO][:TECK],
       CLI::CMDS[:TECK][:DRAW],
       CLI::CMDS[:TECK][:NEW],
@@ -28,14 +28,19 @@ class AosPxy < ApplicationRecord
     AosPxy.find_or_create_by(name: :default)
   end
 
+  def self.user_home
+    AosPxy.find_or_create_by(name: :user_home)
+  end
+
   def set_width(flie_o)
+    # todo: this is not working
     return if flie_o.you.user.nil? || flie_o.width == Aro::Mancy::O
-    run_it!(:"config width #{flie_o.width}", flie_o.you.user)
+    run_it!(:"cor width #{flie_o.width}", flie_o.you.user)
   end
 
   def init_user(user)
-    out = run_it!(:"config", user)
-    run_it!(:"config interface lanimret", user)
+    out = run_it!(:"cor", user)
+    run_it!(:"cor interface lanimret", user)
     unless user.you.flie_o.nil?
       set_width(user.you.flie_o)
     end
@@ -45,6 +50,7 @@ class AosPxy < ApplicationRecord
 
   def compute(user, os_do = nil)
     cmd = :noop.to_s
+
     if os_do.present? && os_dos.include?(os_do)
       cmd = os_do.input || cmd # use noop if os_do.input is nil
 
@@ -88,6 +94,9 @@ class AosPxy < ApplicationRecord
       end
 
       unless is_allowed
+        user_home_response = compute_user_home(user, os_do.input)
+        return user_home_response unless user_home_response.nil?
+
         available_cmds = cmd_excepts.pluck(:cmd) +
           AosPxy::ALLOW_DEFAULTS[:AOS].map(&:to_s) +
           AosPxy::ALLOW_DEFAULTS[:CLI].map{|c| "#{:aro.to_s} #{c}"} +
@@ -100,12 +109,25 @@ class AosPxy < ApplicationRecord
     run_it!(cmd, user)
   end
 
+  def compute_user_home(user, args)
+    return nil unless user.you.within_home?
+    Dir.chdir(Rails.root.join(Flie::Os::AROFLIE_PATH, user.you.pwd)) do
+      begin
+        return `#{args}` # raw passthrough
+      rescue
+      end
+    end
+  end
+
   private
 
   def run_it!(cmd, user)
+    response = nil
     Dir.chdir(Flie::Os::AROFLIE_PATH) do
-      Flie::Os.system_pxy(cmd, user)
+      response = Flie::Os.system_pxy(cmd, user)
     end
+    user.you.sync! unless user.you.nil?
+    return response
   end
 
   def maybe_strip_you(args)

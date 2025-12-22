@@ -6,6 +6,7 @@ class CreateYous < ActiveRecord::Migration[8.1]
       t.belongs_to :flie_o, null: false, foreign_key: true
       t.belongs_to :user, foreign_key: true
       t.string :pwd, null: false
+      t.string :home
 
       t.timestamps
     end

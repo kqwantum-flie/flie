@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+.hidden {
+  display: hidden;
+}
+
 @theme {
   --color-green: #00ff00;
 }

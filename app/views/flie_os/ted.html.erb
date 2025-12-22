@@ -1,0 +1,14 @@
+<div
+  <%# data-controller="ted" %>
+  class="cm-editor bg-black text-green overflow-x-hidden"
+>
+  <%= form_with url: flie_o_tbuf_path(@flie_o.id, @tbuf.id), method: :put, html: {class: "flex flex-col overflow-y-auto w-screen h-screen text-xl font-semibold font-mono selection:bg-green selection:text-black"} do |form| %>
+    <%= form.rich_textarea :content, value: @tbuf.content.body %>
+    <input type="submit" value="save"></input>
+  <% end %>
+  <%# <span data-ted-target="input"><%= @tbuf.content.body.html_safe %></span> %>
+  <%# <div class="cm-scroller flex flex-col overflow-y-auto w-screen h-screen text-xl font-semibold font-mono selection:bg-green selection:text-black"> %>
+    <%# <div class="cm-content" contenteditable="true" data-ted-target="output"> %>
+    <%# </div> %>
+  <%# </div> %>
+</div>

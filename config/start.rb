@@ -1,4 +1,7 @@
 require :fileutils.to_s
+require :"rack/cors".to_s
+require :sinatra.to_s
+
 require :aro.to_s
 
 module Flie
@@ -15,6 +18,14 @@ module Flie
           Flie::Os.system_pxy(:"config dimension ruby_facot") unless File.exist?(Aro::T::DEV_TAROT_FILE.to_s)
         end
       end
+
+      # todo: this should work
+      # Aos::Fpx::Server.start
+      Dir.chdir(Flie::Os::AROFLIE_PATH) do
+        system("aos fpx restart &")
+      end
+
+      return nil
     end
 
     def self.system_pxy(cmd, user = nil)

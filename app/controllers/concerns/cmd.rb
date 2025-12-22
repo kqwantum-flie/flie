@@ -48,23 +48,6 @@ module Cmd
     args = @os_log.in&.split(" ") || []
     return false if args.empty? || args[Aro::Mancy::O].nil?
 
-    # version
-    if ["-v", "--version"].include?(args[Aro::Mancy::S])
-      @os_log.out = "v" + Flie::Application::VERSION
-      return false
-    end
-
-    # helps
-    helps = ["-h", "--help"]
-    if helps.include?(args[Aro::Mancy::O]) || helps.include?(args[Aro::Mancy::S])
-      if @current_user.nil?
-        @os_log.out = I18n.t("flie_os.usage.guest")
-      else
-        @os_log.out = I18n.t("flie_os.usage.user")
-      end
-      return false
-    end
-
     return true if short_circuit?(# 'exit' => 'flie out' os_cmd.
       OsCmd::EXIT,
       Flie::Os::CMDS[:OUT][:name],
@@ -83,6 +66,7 @@ module Cmd
     # os_cmds
     os_cmds = OsCmd.where(name: args[Aro::Mancy::S]&.strip)
     if @current_user.present?
+      return false if custom_program_handled?(args)
       if os_cmd = os_cmds.find_by(access: :user)
         # user flie commands
         spawn_os_do(os_cmd)
@@ -94,7 +78,7 @@ module Cmd
           return true # do not save @os_log
         end
       end
-
+      return false if helps_handled?(args)
       # passthrough to aos
       af_os_cmd = OsCmd.find_by(name: :aroflie)
       # get the os_cmd's first os_get
@@ -110,6 +94,7 @@ module Cmd
       # os_dos to be status -> complete
       @os_log.out = compute_aroflie(af_os_cmd)
     elsif os_cmd = os_cmds.find_by(access: :guest_only)
+      return false if helps_handled?(args)
       # guest_only flie commands
       spawn_os_do(os_cmd)
       return true # do not save @os_log
@@ -145,6 +130,111 @@ module Cmd
       compute_passwd(os_cmd)
     when Flie::Os::CMDS[:UP][:name]
       compute_up(os_cmd)
+    end
+  end
+
+  def helps_handled?(args)
+    # version
+    versions = ["-v", "--version"]
+    if args[Aro::Mancy::O] == Flie.name.downcase &&
+      versions.include?(args[Aro::Mancy::S])
+      @os_log.out = "v" + Flie::Application::VERSION
+      return true
+    end
+
+    # just_flie + helps
+    just_flie = (
+      args.count == Aro::Mancy::S &&
+      args[Aro::Mancy::O] == Flie.name.downcase
+    )
+    helps = ["-h", "--help"]
+    if just_flie || (
+      args[Aro::Mancy::O] == Flie.name.downcase &&
+      helps.include?(args[Aro::Mancy::S]))
+
+      if @current_user.nil?
+        @os_log.out = I18n.t("flie_os.usage.guest")
+      else
+        @os_log.out = I18n.t("flie_os.usage.user")
+      end
+      return true
+    end
+  end
+
+  def custom_program_handled?(args)
+    custom_cat_handled?(args) ||
+    custom_html_handled?(args) ||
+    custom_ted_handled?(args)
+  end
+
+  def custom_cat_handled?(args)
+    cat_file = args[Aro::Mancy::S] || nil
+    just_cat = (
+      args.count == Aro::Mancy::OS &&
+      args[Aro::Mancy::O] == OsCmd::CAT &&
+      cat_file.present?
+    )
+    if just_cat
+      full_path = Rails.root.join(
+        Flie::Os::AROFLIE_PATH,
+        @flie_o.you.pwd,
+        cat_file
+      )
+      unless File.exist?(full_path.to_s)
+        @os_log.out = I18n.t("flie_os.messages.no_such_file", path: full_path.to_s)
+      else
+        @os_log.out = File.read(full_path)
+      end
+      return true
+    end
+  end
+
+  def custom_html_handled?(args)
+    html_file = args[Aro::Mancy::S] || nil
+    just_html = (
+      args.count == Aro::Mancy::OS &&
+      args[Aro::Mancy::O] == OsCmd::HTML &&
+      html_file.present?
+    )
+    if just_html
+      full_path = Rails.root.join(
+        Flie::Os::AROFLIE_PATH,
+        @flie_o.you.pwd,
+        html_file
+      )
+      unless File.exist?(full_path.to_s)
+        @os_log.out = I18n.t("flie_os.messages.no_such_file", path: full_path.to_s)
+      else
+        @os_log.out = "generating a url for #{html_file}..."
+        @final_redirect = Proc.new{
+          redirect_to flie_os_html_flie_o_path(@flie_o, @flie_o.you.homify(html_file))
+        }
+      end
+      return true
+    end
+  end
+
+  def custom_ted_handled?(args)
+    ted_file = args[Aro::Mancy::S] || nil
+    just_ted = (
+      args.count == Aro::Mancy::OS &&
+      args[Aro::Mancy::O] == OsCmd::TED &&
+      ted_file.present?
+    )
+    if just_ted
+      full_path = Rails.root.join(
+        Flie::Os::AROFLIE_PATH,
+        @flie_o.you.pwd,
+        ted_file
+      )
+      unless File.exist?(full_path.to_s)
+        @os_log.out = I18n.t("flie_os.messages.no_such_file", path: full_path.to_s)
+      else
+        @final_redirect = Proc.new{
+          redirect_to flie_os_ted_flie_o_path(@flie_o, @flie_o.you.homify(ted_file))
+        }
+      end
+      return true
     end
   end
 
@@ -220,6 +310,7 @@ module Cmd
       response += Current.session.user_agent
       response += "\n"
       response += Current.session.ip_address
+      response += "\n"
       terminate_session
     else
       response = I18n.t("flie_os.messages.doing_nothing")

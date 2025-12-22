@@ -25,6 +25,7 @@ en:
       doing_nothing: "doing nothing."
       invalid_command: "invalid command."
       invalid_account: "invalid account."
+      no_such_file: "no such file %{path}"
       password_changed: "password changed."
       password_error: "password error."
       password_no_previous: "cannot use previous password."
