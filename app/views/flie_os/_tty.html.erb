@@ -4,39 +4,39 @@
     console.debug("document.readyState: " + document.readyState);
     <%# if (document.readyState == "interactive") { } %>
     if (document.readyState == "complete") {
-      document.getElementById("out_current").scrollIntoView();
+      var oc = document.getElementById("out_current");
+      if (oc != null) {
+        oc.scrollIntoView();
+      }
+
+      var frame = document.getElementById("frame");
+      var font_px = parseFloat(getComputedStyle(frame).fontSize);
+      var width = parseInt(window.innerWidth / (font_px / 1.82));
+      var width_input = document.getElementById("screen_width");
+      width_input.innerText = width;
+      width_input.innerHtml = width;
+      width_input.value = width;
+
+      console.log("set width to: " + width);
     }
   };
 </script>
-
 <% ps1 = ">[#{flie_o.class.name}::#{You.name}]>" %>
 <% display_ps1 = ps1 %>
 <% if current_user.present? %>
-  <% display_ps1 = ">[#{flie_o.you.user.email_address}]>" %>
+  <% display_ps1 = ">[#{current_user.is_eamdc? ? Rails.application.credentials.dig(:aos, :root_youser) : current_user.email_address}]>" %>
 <% end %>
-
 <div id="tty" class="bg-black text-green overflow-x-hidden">
-  <div id="frame" class="flex flex-col overflow-y-auto w-screen h-screen text-2xl font-semibold font-mono selection:bg-green selection:text-black">
+  <div id="frame" class="flex flex-col overflow-y-auto w-screen h-screen text-xl font-semibold font-mono selection:bg-green selection:text-black">
     <div id="output" class="flex flex-col-reverse grow">
-      <% flie_o.os_logs.reverse.each_with_index do |os_log, idx| %>
-      <% anchor = idx == Aro::Mancy::O ? :current.to_s : os_log.id %>
-        <% if os_log.out.present? %>
-          <div id="<%= "out_#{anchor}" %>">
-            <% display_out = os_log.out&.strip %>
-            <%# <pre class="whitespace-pre-wrap"> %>
-              <%= tag.pre(display_out) -%>
-            <%# </pre> %>
-          </div>
+      <% if flie_o.os_logs.any? %>
+        <% if flie_o.os_logs.last.out.present? %>
+          <%= tag.pre(flie_o.os_logs.last.out.to_plain_text, style: "white-space: pre-wrap;") -%>
         <% end %>
-
-        <% if os_log.in.present? %>
-          <div id="<%= "in_#{anchor}" %>">
-            <pre><%= "#{display_ps1}: #{os_log.in&.strip}" %></pre>
-          </div>
+        <% if flie_o.os_logs.last.in.present? %>
+          <%= tag.pre("#{display_ps1}: #{flie_o.os_logs.last.in&.strip}", style: "white-space: pre-wrap;") -%>
         <% end %>
-
       <% end %>
-
     </div>
     <div class="flex grow-none flex-row">
       <div class="ps1">
@@ -51,6 +51,7 @@
       </div>
 
       <%= form_with url: flie_o_os_logs_path(flie_o.id), html: {class: "flex grow ml-[1rem]"} do |form| %>
+        <%= form.hidden_field :screen_width %>
         <input type="<%= input_type %>" id="os_log_in" name="os_log[in]" class="grow focus:outline-none" spellcheck="false" autocomplete="off" autofocus></input>
       <% end %>
 

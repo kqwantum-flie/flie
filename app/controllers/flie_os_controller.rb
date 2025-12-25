@@ -42,6 +42,42 @@ class FlieOsController < ApplicationController
     redirect_to @flie_o
   end
 
+  def html
+    html_path = params[:filepath]
+    # hidden files do not work
+    # todo: validation
+    file_ext = request.original_url.split(".").last
+    if file_ext != :html.to_s
+      @flie_o.os_logs.last.update(out: "invalid format #{file_ext}. must be html")
+      redirect_to @flie_o
+    else
+      html_path += "." + file_ext unless file_ext.nil?
+      real_path = Rails.root.join(
+        Flie::Os::AROFLIE_PATH,
+        @flie_o.you.home,
+        html_path
+      )
+
+      render inline: HTMLEntities.new.decode(File.read(real_path.to_s))
+    end
+  end
+
+  def ted
+    ted_path = params[:filepath]
+    # hidden files do not work
+    # todo: validation
+    file_ext = request.original_url.split(".").last
+    ted_path += "." + file_ext unless file_ext.nil?
+    real_path = Rails.root.join(
+      Flie::Os::AROFLIE_PATH,
+      @flie_o.you.home,
+      ted_path
+    )
+    @tbuf = @flie_o.tbufs.find_or_create_by(real_path: real_path.to_s, ted_path: ted_path)
+    @tbuf.opened!
+    respond_to {|format| format.any{render :ted, formats: :html}}
+  end
+
   private
 
   def set_you

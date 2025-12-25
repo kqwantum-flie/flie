@@ -2,6 +2,15 @@ en:
   aroflie:
     messages:
       command_not_available: "the %{cmd} command is not available. available aroflie commands are: %{available_cmds}."
+  os_cmds:
+    descriptions:
+      aroflie: "used internally to pass commands to aos."
+      clear: "clear terminal history."
+      in: "sign in."
+      out: "sign out."
+      passwd: "change password."
+      pxy: "admin proxy exception management."
+      up: "sign up."
   os_gets:
     prompts:
       command: "enter a command"
@@ -16,6 +25,7 @@ en:
       doing_nothing: "doing nothing."
       invalid_command: "invalid command."
       invalid_account: "invalid account."
+      no_such_file: "no such file %{path}"
       password_changed: "password changed."
       password_error: "password error."
       password_no_previous: "cannot use previous password."

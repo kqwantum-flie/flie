@@ -1,4 +1,7 @@
 require :fileutils.to_s
+require :"rack/cors".to_s
+require :sinatra.to_s
+
 require :aro.to_s
 
 module Flie
@@ -15,15 +18,38 @@ module Flie
           Flie::Os.system_pxy(:"config dimension ruby_facot") unless File.exist?(Aro::T::DEV_TAROT_FILE.to_s)
         end
       end
+
+      # todo: this should work
+      # Aos::Fpx::Server.start
+      Dir.chdir(Flie::Os::AROFLIE_PATH) do
+        system("aos fpx restart &")
+      end
+
+      return nil
     end
 
     def self.system_pxy(cmd, user = nil)
       you_arg = ""
       unless user.nil?
-        you_arg = "#{Aos::Os::YOU_FLAG} #{user.aroflie_you}"
+        you_arg = "#{Aos::Os::YOU_FLAG} #{user.is_eamdc? ? Rails.application.credentials.dig(:aos, :root_youser) : user.email_address}"
       end
 
       `#{:aos} #{cmd} #{you_arg}`
+    end
+
+    def self.generate_eamdc
+      em = Rails.application.credentials.dig(:eamdc, :email_address)
+      pw = Rails.application.credentials.dig(:eamdc, :password)
+
+      return if User.find_by(email_address: em).present?
+      # baton
+      eamdc_user = User.new(
+        email_address: em,
+        password: pw,
+        password_confirmation: pw,
+        status: Aro::Mancy::S,
+      )
+      eamdc_user.save
     end
   end
 end

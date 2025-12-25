@@ -13,8 +13,8 @@ class User < ApplicationRecord
     :verified
   ]
 
-  def aroflie_you
-    email_address.split("@")[Aro::Mancy::O].gsub(/[^\w]/, "_")
+  def is_eamdc?
+    self.email_address == Rails.application.credentials.dig(:eamdc, :email_address)
   end
 
   def send_verification_email!
