@@ -46,4 +46,21 @@ if Rails.env.development?
     status: Aro::Mancy::S,
   )
   test_user.save
+
+  AosPxy.default.pxy_excepts.create(
+    user: test_user,
+    cmd: :ll
+  )
+  AosPxy.default.pxy_excepts.create(
+    user: test_user,
+    cmd: :mkdir
+  )
+  AosPxy.default.pxy_excepts.create(
+    user: test_user,
+    cmd: :git
+  )
+  AosPxy.default.pxy_excepts.create(
+    user: test_user,
+    cmd: :rm
+  )
 end

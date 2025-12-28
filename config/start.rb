@@ -1,12 +1,19 @@
-require :fileutils.to_s
-require :"rack/cors".to_s
-require :sinatra.to_s
-
 require :aro.to_s
 
 module Flie
   module Os
     AROFLIE_PATH = :aroflie.to_s
+
+    # todo: make this work once aos fpx args are complete
+    def self.fpx_read_you(you_name)
+      url = URI.parse(File.join(
+        "http://localhost:7474", :"you/#{you_name}".to_s))
+      req = Net::HTTP::Get.new(url.to_s)
+      res = Net::HTTP.start(url.host, url.port) {|http|
+        http.request(req)
+      }
+      res.body
+    end
 
     def self.start
       unless Dir.exist?(Flie::Os::AROFLIE_PATH)
@@ -19,9 +26,14 @@ module Flie
         end
       end
 
+      require :"rack/cors".to_s
+      require :sinatra.to_s
       # todo: this should work
+      # Aos::Fpx::Server.stop
       # Aos::Fpx::Server.start
       Dir.chdir(Flie::Os::AROFLIE_PATH) do
+        # todo: make this
+        # system("aos fpx -h localhost -p 7474 -t 60 -l aroflie/root/flie/fpx.log --flie localhost:3000")
         system("aos fpx restart &")
       end
 

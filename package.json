@@ -9,14 +9,15 @@
     "esbuild": "^0.27.2"
   },
   "dependencies": {
+    "@codemirror/lang-html": "",
+    "@codemirror/lang-javascript": "",
     "@hotwired/stimulus": "^3.2.2",
     "@hotwired/turbo-rails": "^8.0.20",
+    "@rails/actioncable": "^8.1.100",
     "@rails/actiontext": "^8.1.100",
     "@tailwindcss/cli": "^4.1.18",
-    "tailwindcss": "^4.1.18",
-    "trix": "^2.1.15",
     "codemirror": "^6.0.2",
-    "@codemirror/lang-html": "",
-    "@codemirror/lang-javascript": ""
+    "tailwindcss": "^4.1.18",
+    "trix": "^2.1.15"
   }
 }

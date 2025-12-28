@@ -37,6 +37,8 @@ module Flie
     # todo: implement ses when i own a domain for it
     # config.action_mailer.delivery_method = :ses_v2
     # config.action_mailer.ses_v2_settings = { region: 'us-east-2' }
+
+    config.action_cable.worker_pool_size = 4
   end
 end
 

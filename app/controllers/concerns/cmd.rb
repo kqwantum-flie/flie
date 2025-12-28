@@ -65,7 +65,17 @@ module Cmd
 
     # os_cmds
     os_cmds = OsCmd.where(name: args[Aro::Mancy::S]&.strip)
-    if @current_user.present?
+    return false if helps_handled?(args)
+    unless @current_user.present?
+      os_cmd = os_cmds.find_by(access: :guest_only)
+      # guest_only flie commands
+      if os_cmd.present?
+        spawn_os_do(os_cmd)
+        return true # do not save @os_log
+      else
+        @os_log.out = I18n.t("flie_os.messages.invalid_command")
+      end
+    else
       return false if custom_program_handled?(args)
       if os_cmd = os_cmds.find_by(access: :user)
         # user flie commands
@@ -78,7 +88,6 @@ module Cmd
           return true # do not save @os_log
         end
       end
-      return false if helps_handled?(args)
       # passthrough to aos
       af_os_cmd = OsCmd.find_by(name: :aroflie)
       # get the os_cmd's first os_get
@@ -89,17 +98,9 @@ module Cmd
       af_os_do.input = args.join(" ")
       # save and complete the os_do
       af_os_do.save
-      af_os_do.complete!
-      # compute expects all of the os_cmd's
-      # os_dos to be status -> complete
+      # do compute
       @os_log.out = compute_aroflie(af_os_cmd)
-    elsif os_cmd = os_cmds.find_by(access: :guest_only)
-      return false if helps_handled?(args)
-      # guest_only flie commands
-      spawn_os_do(os_cmd)
-      return true # do not save @os_log
-    else
-      @os_log.out = I18n.t("flie_os.messages.invalid_command")
+      af_os_do.complete!
     end
 
     # returning false causes @os_log to be saved
@@ -288,6 +289,7 @@ module Cmd
         start_new_session_for(user)
         user.you.flie_o.update(width: @flie_o.width)
         user.you.flie_o.generate_sign_in_os_log
+        @flie_o.broadcast_page_refresh
       else
         # todo: create a way to resend verification email
         # eg: flie verify <email_address>
@@ -312,6 +314,7 @@ module Cmd
       response += Current.session.ip_address
       response += "\n"
       terminate_session
+      @flie_o.broadcast_page_refresh
     else
       response = I18n.t("flie_os.messages.doing_nothing")
     end
@@ -373,6 +376,7 @@ module Cmd
       )
       if user.save
         user.send_verification_email!
+        @flie_o.broadcast_page_refresh
         response += I18n.t("flie_os.messages.verify_email", email_address: user.email_address)
       else
         response += "#{user.errors.messages}"

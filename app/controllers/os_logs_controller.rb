@@ -26,7 +26,6 @@ class OsLogsController < ApplicationController
   end
 
   def os_log_params
-    params.permit!
     params.require(:os_log).permit(:in)
   end
 end

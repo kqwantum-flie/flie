@@ -5,4 +5,6 @@
 import { application } from "./application"
 
 import TedController from "./ted_controller"
+import TtyController from "./tty_controller"
 application.register("ted", TedController)
+application.register("tty", TtyController)

@@ -10,6 +10,7 @@ class AosPxy < ApplicationRecord
       Aos::Os::CMDS[:COR][:key],
       Aos::Os::CMDS[:DATA][:key],
       Aos::Os::CMDS[:HELP][:key],
+      Aos::Os::CMDS[:LL][:key],
       Aos::Os::CMDS[:LS][:key],
       Aos::Os::CMDS[:PWD][:key],
     ],
@@ -76,18 +77,6 @@ class AosPxy < ApplicationRecord
           args.count == Aro::Mancy::S
       end
 
-      # pxy_excepts here
-      # todo: add aos lib usage as pxy_excepts
-      # Dir.chdir(Flie::Os::AROFLIE_PATH) do
-
-      #   fpxies = Aos::Flie.pxies(user.email_address)
-      #   if aos_you.present?
-      #     fpxies = aos_you.fpxies.where(cmd: args.join(" "))
-      #     fpxies = aos_you.fpxies.where(cmd: args[0]) unless fpxies.any?
-      #     fpxies = aos_you.fpxies.where(cmd: [args[0], args[1]].join(" ")) unless fpxies.any?
-      #     is_allowed = fpxies.any?
-      #   end
-      # end
       cmd_excepts = pxy_excepts.where(cmd: args)
       unless is_allowed
         is_allowed = cmd_excepts.any?
@@ -114,7 +103,8 @@ class AosPxy < ApplicationRecord
     Dir.chdir(Rails.root.join(Flie::Os::AROFLIE_PATH, user.you.pwd)) do
       begin
         return `#{args}` # raw passthrough
-      rescue
+      rescue => e
+        return e.backtrace.join("\n")
       end
     end
   end

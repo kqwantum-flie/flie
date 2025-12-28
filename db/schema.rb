@@ -157,6 +157,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_23_001755) do
     t.integer "flie_o_id", null: false
     t.string "home"
     t.string "pwd", default: "/", null: false
+    t.integer "stream_bytes", default: 0
     t.datetime "updated_at", null: false
     t.integer "user_id"
     t.index ["flie_o_id"], name: "index_yous_on_flie_o_id"

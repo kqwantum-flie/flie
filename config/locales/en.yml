@@ -1,7 +1,7 @@
 en:
   aroflie:
     messages:
-      command_not_available: "the %{cmd} command is not available. available aroflie commands are: %{available_cmds}."
+      command_not_available: "the %{cmd} command is not available. available flie commands are: %{available_cmds}."
   os_cmds:
     descriptions:
       aroflie: "used internally to pass commands to aos."
